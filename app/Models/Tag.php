@@ -17,7 +17,7 @@ class Tag extends Model
     {
         parent::boot();
         static::saving(function ($model) {
-            $model->slug = Str::slug($model->title);
+            $model->slug = Str::slug($model->name);
         });
     }
 }

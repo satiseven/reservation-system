@@ -10,6 +10,9 @@ class Reservation extends Model
 {
     use HasFactory;
 
+    const STATUS_ACTIVE = 1;
+    const STATUS_CANCELED = 2;
+
     protected $casts = [
         'price' => 'decimal',
         'status' => 'integer',
