@@ -17,14 +17,15 @@ class Office extends Model
     const APPROVAL_APPROVED = 2;
     const APPROVAL_REJECTED = 3;
 
-    protected $casts = [
-        'lat' => 'decimal:8',
-        'lng' => 'decimal:8',
-        'price_per_day' => 'decimal',
-        'monthly_discount' => 'decimal',
-        'approval_status' => 'integer',
-        'hidden' => 'boolean',
-    ];
+    protected $casts
+        = [
+            'lat'              => 'decimal:8',
+            'lng'              => 'decimal:8',
+            'price_per_day'    => 'decimal:2',
+            'monthly_discount' => 'decimal:2',
+            'approval_status'  => 'integer',
+            'hidden'           => 'boolean',
+        ];
 
     public function user(): BelongsTo
     {

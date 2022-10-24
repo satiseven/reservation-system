@@ -23,7 +23,7 @@ return new class extends Migration {
             $table->text('address_line_2')->nullable();
             $table->tinyInteger('approval_status');
             $table->boolean('hidden')->default(false);
-            $table->decimal('price_per_date', 8, 2);
+            $table->decimal('price_per_day', 8, 2);
             $table->decimal('monthly_discount', 8, 2);
             $table->timestamps();
             $table->softDeletes();
