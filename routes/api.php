@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\OfficeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,5 +19,5 @@ use Illuminate\Support\Facades\Route;
 //    return $request->user();
 //});
 Route::get('/tags', \App\Http\Controllers\TagController::class);
-Route::get('/offices',[\App\Http\Controllers\OfficeController::class,'index']);
+Route::resource('offices', OfficeController::class);
 

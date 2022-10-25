@@ -14,7 +14,7 @@ return new class extends Migration {
     {
         Schema::create('images', function (Blueprint $table) {
             $table->id();
-            $table->morphs('resources');
+            $table->morphs('resource');
             $table->string('path');
             $table->timestamps();
         });

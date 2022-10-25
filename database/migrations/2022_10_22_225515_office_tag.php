@@ -12,7 +12,7 @@ return new class extends Migration {
      */
     public function up()
     {
-        Schema::create('offices_tags', function (Blueprint $table) {
+        Schema::create('office_tag', function (Blueprint $table) {
             $table->foreignId('office_id');
             $table->foreignId('tag_id');
             $table->unique(['office_id', 'tag_id']);

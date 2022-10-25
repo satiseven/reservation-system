@@ -14,7 +14,7 @@ class Reservation extends Model
     const STATUS_CANCELED = 2;
 
     protected $casts = [
-        'price' => 'decimal',
+        'price' => 'decimal:2',
         'status' => 'integer',
         'start_date' => 'immutable_date',
         'end_date' => 'immutable_date',

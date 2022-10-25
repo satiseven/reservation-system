@@ -6,6 +6,7 @@ use App\Http\Requests\StoreOfficeRequest;
 use App\Http\Requests\UpdateOfficeRequest;
 use App\Http\Resources\OfficeResource;
 use App\Models\Office;
+use App\Models\Reservation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
 
@@ -27,7 +28,17 @@ class OfficeController extends Controller
         when(request('user_id'),
             fn(Builder $build) => $build->whereRelation('reservations', 'user_id', '=', request('user_id'))
         )->
-        latest('id')->paginate(20);
+        when(request('lat') && request('lng'),
+            fn(Builder $builder) => $builder->nearestTo(request('lat'), request('lng')),
+            fn(Builder $builder) => $builder->orderBy('id', 'ASC'))->
+
+        latest('id')->
+        with(['images', 'tags', 'user'])->
+        withCount([
+            'reservations' =>
+                fn(Builder $builder) => $builder->where('status', Reservation::STATUS_ACTIVE),
+        ])->
+        paginate(20);
 
         return OfficeResource::collection($offices);
     }
@@ -63,7 +74,12 @@ class OfficeController extends Controller
      */
     public function show(Office $office)
     {
-        //
+        $office->loadCount([
+            'reservations' =>
+                fn(Builder $builder) => $builder->where('status', Reservation::STATUS_ACTIVE),
+        ]);
+
+        return OfficeResource::make($office);
     }
 
     /**
