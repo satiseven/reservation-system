@@ -8,7 +8,9 @@ use App\Http\Resources\OfficeResource;
 use App\Models\Office;
 use App\Models\Reservation;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Response;
+use Illuminate\Support\Arr;
 
 
 class OfficeController extends Controller
@@ -18,6 +20,11 @@ class OfficeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function __construct()
+    {
+        $this->middleware(['auth:sanctum'])->only(['create', 'update']);
+    }
+
     public function index()
     {
         $offices = Office::query()->
@@ -25,8 +32,8 @@ class OfficeController extends Controller
         where('hidden', false)->
         when(request('host_id'), fn(Builder $build) => $build->whereUserId(request('host_id'))
         )->
-        when(request('user_id'),
-            fn(Builder $build) => $build->whereRelation('reservations', 'user_id', '=', request('user_id'))
+        when(request('visitor_id'),
+            fn(Builder $build) => $build->whereRelation('reservations', 'user_id', '=', request('visitor_id'))
         )->
         when(request('lat') && request('lng'),
             fn(Builder $builder) => $builder->nearestTo(request('lat'), request('lng')),
@@ -50,7 +57,7 @@ class OfficeController extends Controller
      */
     public function create()
     {
-        //
+
     }
 
     /**
@@ -62,7 +69,10 @@ class OfficeController extends Controller
      */
     public function store(StoreOfficeRequest $request)
     {
-        //
+        $office = Office::create(Arr::except($request->validated(), ['tags']));
+        $office->tags()->sync($request->tags);
+
+        return response()->json(OfficeResource::make($office));
     }
 
     /**

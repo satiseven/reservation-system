@@ -2,18 +2,45 @@
 
 namespace Tests\Feature;
 
-use App\Models\Image;
 use App\Models\Office;
 use App\Models\Reservation;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class OfficeControllerTest extends TestCase
 {
-//    use RefreshDatabase;
+    use RefreshDatabase;
+
+    /**
+     * A basic feature Pagination Office.
+     *
+     * @test
+     */
+    public function itCreateAnOffice()
+    {
+        $user = User::factory()->createQuietly();
+        $this->actingAs($user);
+        $tag = Tag::factory()->create(['name' => 'this is my tag']);
+        $response = $this->postJson('/api/offices', [
+            'user_id' => $user->id,
+            'title' => 'deneme basligi',
+            'description' => 'deneme description',
+            'lat' => '41.01678462062215',
+            'lng' => '28.94016767414268',
+            'address_line_1' => 'fatih istanbul',
+            'approval_status' => Office::APPROVAL_APPROVED,
+            'hidden' => false,
+            'price_per_day' => 1000,
+            'monthly_discount' => 0,
+            'tags' => [
+                $tag->id,
+            ],
+        ]);
+
+        $response->assertOk();
+    }
 
     /**
      * A basic feature Pagination Office.
@@ -53,7 +80,7 @@ class OfficeControllerTest extends TestCase
     {
         Office::factory(3)->create();
         $user = User::factory()->create();
-        $offices = Office::factory(3)->for($user)->create();
+        Office::factory(3)->for($user)->create();
         $response = $this->get('/api/offices?host_id='.$user->id);
         $response->assertJsonCount(3, 'data');
         $response->assertOk();
@@ -72,7 +99,7 @@ class OfficeControllerTest extends TestCase
         $office = Office::factory()->create();
         // Reservation::factory()->for(Office::factory())->create();
         Reservation::factory()->for($user)->for($office)->create();
-        $response = $this->get('/api/offices?user_id='.$user->id);
+        $response = $this->get('/api/offices?visitor_id='.$user->id);
         $response->assertOk()->dump();
     }
 
@@ -85,7 +112,7 @@ class OfficeControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $office = Office::factory()->for($user)->create();
-        $tag = Tag::factory()->create();
+        $tag = Tag::factory()->create(['name' => 'bathroom one']);
         $office->tags()->attach($tag);
         $office->images()->create(['path' => 'main.png']);
         $response = $this->get('/api/offices');
@@ -115,14 +142,13 @@ class OfficeControllerTest extends TestCase
      */
     public function itOrdersByDistanceWhenCoordinatesAreProvided()
     {
-        //40.99847255085493, 28.846298723163642
-        $office = Office::factory()->create([
+        Office::factory()->create([
             'lat' => "40.998074593742096",
             'lng' => "28.84494777940843",
             'title' => 'Market Bibi',
         ]);
 
-        $office2 = Office::factory()->create([
+        Office::factory()->create([
             'lat' => "40.99750430607406",
             'lng' => "28.845767741972608",
             'title' => 'Sair Zihni',

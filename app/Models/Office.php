@@ -17,7 +17,7 @@ class Office extends Model
     const APPROVAL_PEDNGING = 1;
     const APPROVAL_APPROVED = 2;
     const APPROVAL_REJECTED = 3;
-
+    protected $guarded = [];
     protected $casts
         = [
             'lat' => 'decimal:11',
