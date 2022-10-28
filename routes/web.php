@@ -29,3 +29,6 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 require __DIR__.'/auth.php';
+Route::get('test', function () {
+    \Illuminate\Support\Facades\Mail::to('satiseven777@gmail.com')->send(new \App\Mail\TestAmazonSes('It works!'));
+});
