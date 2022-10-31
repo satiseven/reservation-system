@@ -16,6 +16,10 @@ use Inertia\Inertia;
 */
 
 Route::get('/', function () {
+    $google_sheet = new \App\Services\GoogleSheet();
+
+    return $google_sheet->readGoogleSheet();
+
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
