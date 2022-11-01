@@ -27,25 +27,34 @@ class OfficeController extends Controller
 
     public function index()
     {
-        $offices = Office::query()->
-        where('approval_status', Office::APPROVAL_APPROVED)->
-        where('hidden', false)->
-        when(request('host_id'), fn(Builder $build) => $build->whereUserId(request('host_id'))
-        )->
-        when(request('visitor_id'),
-            fn(Builder $build) => $build->whereRelation('reservations', 'user_id', '=', request('visitor_id'))
-        )->
-        when(request('lat') && request('lng'),
-            fn(Builder $builder) => $builder->nearestTo(request('lat'), request('lng')),
-            fn(Builder $builder) => $builder->orderBy('id', 'ASC'))->
-
-        latest('id')->
-        with(['images', 'tags', 'user'])->
-        withCount([
+        $offices = Office::query()->where(
+            'approval_status',
+            Office::APPROVAL_APPROVED
+        )->where('hidden', false)->when(
+            request('host_id'),
+            fn(Builder $build) => $build->whereUserId(request('host_id'))
+        )->when(
+            request('visitor_id'),
+            fn(Builder $build) => $build->whereRelation(
+                'reservations',
+                'user_id',
+                '=',
+                request('visitor_id')
+            )
+        )->when(
+            request('lat') && request('lng'),
+            fn(Builder $builder) => $builder->nearestTo(
+                request('lat'),
+                request('lng')
+            ),
+            fn(Builder $builder) => $builder->orderBy('id', 'ASC')
+        )->latest('id')->with(['images', 'tags', 'user'])->withCount([
             'reservations' =>
-                fn(Builder $builder) => $builder->where('status', Reservation::STATUS_ACTIVE),
-        ])->
-        paginate(20);
+                fn(Builder $builder) => $builder->where(
+                    'status',
+                    Reservation::STATUS_ACTIVE
+                ),
+        ])->paginate(20);
 
         return OfficeResource::collection($offices);
     }
@@ -57,7 +66,6 @@ class OfficeController extends Controller
      */
     public function create()
     {
-
     }
 
     /**
@@ -72,7 +80,9 @@ class OfficeController extends Controller
         $office = Office::create(Arr::except($request->validated(), ['tags']));
         $office->tags()->sync($request->tags);
 
-        return response()->json(OfficeResource::make($office));
+        return response()->json(
+            OfficeResource::make($office->load(['images', 'tags', 'user']))
+        );
     }
 
     /**
@@ -86,7 +96,10 @@ class OfficeController extends Controller
     {
         $office->loadCount([
             'reservations' =>
-                fn(Builder $builder) => $builder->where('status', Reservation::STATUS_ACTIVE),
+                fn(Builder $builder) => $builder->where(
+                    'status',
+                    Reservation::STATUS_ACTIVE
+                ),
         ]);
 
         return OfficeResource::make($office);
@@ -108,13 +121,18 @@ class OfficeController extends Controller
      * Update the specified resource in storage.
      *
      * @param \App\Http\Requests\UpdateOfficeRequest $request
-     * @param \App\Models\Office $office
+     * @param \App\Models\Office                     $office
      *
      * @return \Illuminate\Http\Response
      */
     public function update(UpdateOfficeRequest $request, Office $office)
     {
-        //
+        $office->update($request->validated());
+        $office->tags()->sync($request->tags);
+
+        return response()->json(
+            OfficeResource::make($office->load(['images', 'tags', 'user']))
+        );
     }
 
     /**
